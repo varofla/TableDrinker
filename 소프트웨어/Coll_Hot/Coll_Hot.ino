@@ -2,24 +2,14 @@
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
 #include <Thermistor.h>
-//#include <SteinhartHart.h>
 
 #define _EN_1PIN_ 2
 #define _EN_2PIN_ 3
-#define _EN_CLPIN_ 8 //
+#define _EN_CLPIN_ 8 
 #define _MO_PWMPIN_ 9
-#define _MO_ENPIN_ 4 //
+#define _MO_ENPIN_ 4 
 #define _FAN_PWMPIN_ 11
 #define _FAN_ENPIN_ 10
-/*
-#define _EN_1PIN_ 2
-#define _EN_2PIN_ 3
-#define _EN_CLPIN_ 4
-#define _MO_PWMPIN_ 9
-#define _MO_ENPIN_ 8
-#define _FAN_PWMPIN_ 11
-#define _FAN_ENPIN_ 10
-*/
 
 #define address_EEPROM_hightemp 1
 #define address_EEPROM_lowtemp 0
@@ -28,11 +18,7 @@ Encoder Enc(_EN_1PIN_, _EN_2PIN_);
 LiquidCrystal_I2C LCD(0x3F, 16, 2);
 Thermistor Sensor_top(A0);
 Thermistor Sensor_bot(A1);
-/*ÇØ¾ßÇÒ °Í*/
-/*
-1. ÃÊ±âÈ­ ±â´ÉÀ» on/off·Î ¹Ù²Ù±â - > on/off¸¦ ´©¸£¸é ¸ŞÀÎ È­¸éÀ¸·Î µ¹¾Æ°¡¾ßÇÔ
-*/
-/*LCD Ä¿½ºÅÒ µµÆ®*/
+/*LCD ì»¤ìŠ¤í…€ ë„íŠ¸*/
 byte newChar1[8] = {
 B01000,
   B10100,
@@ -83,7 +69,7 @@ byte newChar5[8] = {
 	B00000,
 	B00000
 };
-byte newChar6[8] = { //ºí·°
+byte newChar6[8] = { 
 	B00000,
 	B00000,
 	B00000,
@@ -93,7 +79,7 @@ byte newChar6[8] = { //ºí·°
 	B00000,
 	B00000
 };
-byte newChar7[8] = { //³íºí·°
+byte newChar7[8] = { 
 	B00000,
 	B00000,
 	B00000,
@@ -104,32 +90,32 @@ byte newChar7[8] = { //³íºí·°
 	B00000
 };
 
-/*º¯¼ö ¼±¾ğ*/
+/*ë³€ìˆ˜ ì„ ì–¸*/
 int DEBUG = 1;
-int Must_coll = 0; //50µµ ÀÌ»ó ¿Ã¶ó°¡¸é 45µµ±îÁö Äğ·¯ °¡µ¿
-int END_COLLING = 0; //Á¤Áö ÈÄ Äğ¸µ ¼³Á¤, 1
-int mode = 1; //1Àº È÷ÆÃ¸ğµå, 2Àº Äğ¸µ¸ğµå
-int scroll = 0; //1: È÷ÆÃ/Äğ¸µ, 2: MAX¼³Á¤, 3: MIN¼³Á¤, 0:µÚ·Î°¡±â
-int mode_setting = 0; //ÀÎÄÚ´õ ½ºÅ©·ÑÀÇ ¿ªÇÒ ¼³Á¤, 1: ¼±ÅÃ¸ğµå, 2: ¸ğµå È÷ÆÃ/Äğ¸µ ...
+int Must_coll = 0; //50ë„ ì´ìƒ ì˜¬ë¼ê°€ë©´ 45ë„ê¹Œì§€ ì¿¨ëŸ¬ ê°€ë™
+int END_COLLING = 0; //ì •ì§€ í›„ ì¿¨ë§ ì„¤ì •, 1
+int mode = 1; //1ì€ íˆíŒ…ëª¨ë“œ, 2ì€ ì¿¨ë§ëª¨ë“œ
+int scroll = 0; //1: íˆíŒ…/ì¿¨ë§, 2: MAXì„¤ì •, 3: MINì„¤ì •, 0:ë’¤ë¡œê°€ê¸°
+int mode_setting = 0; //ì¸ì½”ë” ìŠ¤í¬ë¡¤ì˜ ì—­í•  ì„¤ì •, 1: ì„ íƒëª¨ë“œ, 2: ëª¨ë“œ íˆíŒ…/ì¿¨ë§ ...
 long Time = 0;
 long Time2 = 0;
 long Time_plash = 0;
-int ONOFF = 0; //1ÀÏ °æ¿ì¿¡ ÆçÆ¼¾î ¼ÒÀÚ ÀÛµ¿ °¡´É, 0ÀÏ °æ¿ì¿¡ ÆçÆ¼¾î ¼ÒÀÚ ÀÛµ¿¾ÈÇÔ
+int ONOFF = 0; //1ì¼ ê²½ìš°ì— í í‹°ì–´ ì†Œì ì‘ë™ ê°€ëŠ¥, 0ì¼ ê²½ìš°ì— í í‹°ì–´ ì†Œì ì‘ë™ì•ˆí•¨
 
-struct TM { //¿Âµµ °ü·Ã º¯¼ö
+struct TM { //ì˜¨ë„ ê´€ë ¨ ë³€ìˆ˜
 	int now = 0;
 	int set = 0;
 }; TM Temp_top, Temp_bot;
 
-/*±âÅ¸ ÇÔ¼ö*/
+/*ê¸°íƒ€ í•¨ìˆ˜*/
 int plash() {
 	digitalWrite(13, HIGH);
 	Time_plash = millis() + 50;
 }
 
-/*LCDÈ­¸é ÇÁ¸°ÆÃ*/
-struct LC { //LCD°ü·Ã ÇÔ¼ö¼Â
-	int menu = 0; //0: È¨, 1: ¼¼ÆÃ¸ğµå
+/*LCDí™”ë©´ í”„ë¦°íŒ…*/
+struct LC { //LCDê´€ë ¨ í•¨ìˆ˜ì…‹
+	int menu = 0; //0: í™ˆ, 1: ì„¸íŒ…ëª¨ë“œ
 	int clear(int clear_location) {
 		if (clear_location == 0) {
 			LCD.setCursor(0, 0);
@@ -149,11 +135,11 @@ struct LC { //LCD°ü·Ã ÇÔ¼ö¼Â
 			if (Temp_top.now > -10) LCD.print(" ");
 			LCD.print(Temp_top.now);
 		}
-		else if (Temp_top.now < 10) { //**9ÀÎ °æ¿ì
+		else if (Temp_top.now < 10) { //**9ì¸ ê²½ìš°
 			LCD.print("  ");
 			LCD.print(Temp_top.now);
 		}
-		else if (Temp_top.now < 100) { //*99ÀÎ °æ¿ì
+		else if (Temp_top.now < 100) { //*99ì¸ ê²½ìš°
 			LCD.print(" ");
 			LCD.print(Temp_top.now);
 		}
@@ -163,29 +149,29 @@ struct LC { //LCD°ü·Ã ÇÔ¼ö¼Â
 			if (Temp_top.set > -10) LCD.print(" ");
 			LCD.print(Temp_top.set);
 		}
-		else if (Temp_top.set < 10) { //**9ÀÎ °æ¿ì
+		else if (Temp_top.set < 10) { //**9ì¸ ê²½ìš°
 			LCD.print("  ");
 			LCD.print(Temp_top.set);
 		}
-		else if (Temp_top.set < 100) { //*99ÀÎ °æ¿ì
+		else if (Temp_top.set < 100) { //*99ì¸ ê²½ìš°
 			LCD.print(" ");
 			LCD.print(Temp_top.set);
 		}
 		else LCD.print(Temp_top.set);
-		LCD.write(byte(0)); //¿Âµµ±âÈ£
-		if(mode == 1) LCD.write(byte(1)); //È÷ÆÃ±âÈ£
-		else LCD.write(byte(2)); //Äğ¸µ±âÈ£
+		LCD.write(byte(0)); //ì˜¨ë„ê¸°í˜¸
+		if(mode == 1) LCD.write(byte(1)); //íˆíŒ…ê¸°í˜¸
+		else LCD.write(byte(2)); //ì¿¨ë§ê¸°í˜¸
 		LCD.setCursor(0, 1);
 		LCD.print("B:");
 		if (Temp_bot.now < 0) {
 			if (Temp_bot.now > -10) LCD.print(" ");
 			LCD.print(Temp_bot.now);
 		}
-		else if (Temp_bot.now < 10) { //**9ÀÎ °æ¿ì
+		else if (Temp_bot.now < 10) { //**9ì¸ ê²½ìš°
 			LCD.print("  ");
 			LCD.print(Temp_bot.now);
 		}
-		else if (Temp_bot.now < 100) { //*99ÀÎ °æ¿ì
+		else if (Temp_bot.now < 100) { //*99ì¸ ê²½ìš°
 			LCD.print(" ");
 			LCD.print(Temp_bot.now);
 		}
@@ -195,18 +181,18 @@ struct LC { //LCD°ü·Ã ÇÔ¼ö¼Â
 			if (Temp_bot.set > -10) LCD.print(" ");
 			LCD.print(Temp_bot.set);
 		}
-		else if (Temp_bot.set < 10) { //**9ÀÎ °æ¿ì
+		else if (Temp_bot.set < 10) { //**9ì¸ ê²½ìš°
 			LCD.print("  ");
 			LCD.print(Temp_bot.set);
 		}
-		else if (Temp_bot.set < 100) { //*99ÀÎ °æ¿ì
+		else if (Temp_bot.set < 100) { //*99ì¸ ê²½ìš°
 			LCD.print(" ");
 			LCD.print(Temp_bot.set);
 		}
 		else LCD.print(Temp_bot.set);
-		LCD.write(byte(0)); //¿Âµµ±âÈ£
-		if (mode == 1) LCD.write(byte(2)); //È÷ÆÃ±âÈ£
-		else LCD.write(byte(1)); //Äğ¸µ±âÈ£
+		LCD.write(byte(0)); //ì˜¨ë„ê¸°í˜¸
+		if (mode == 1) LCD.write(byte(2)); //íˆíŒ…ê¸°í˜¸
+		else LCD.write(byte(1)); //ì¿¨ë§ê¸°í˜¸
 	}
 	int setting() {
 		LCD.setCursor(0, 0);
@@ -244,15 +230,14 @@ struct LC { //LCD°ü·Ã ÇÔ¼ö¼Â
 	}
 }; LC lcd;
 void LCD_print() {
-	if (lcd.menu == 0) { //¸ŞÀÎ¸Ş´º¿¡¼­ ¸®ÇÁ·¹½Ì
+	if (lcd.menu == 0) { //ë©”ì¸ë©”ë‰´ì—ì„œ ë¦¬í”„ë ˆì‹±
 		lcd.home();
 	}
 	else if (lcd.menu == 1) {
 		lcd.setting();
 	}
 }
-
-/*ÀÎÄÚ´õ Ã¼Å·*/
+/*ì¸ì½”ë” ì²´í‚¹*/
 struct EN {
 	long New;
 	long Old = -999;
@@ -260,20 +245,20 @@ struct EN {
 	int Old_cl = 0;
 	int count_EN;
 }; EN encoder;
-void Check_encoder() { //ÀÎÄÚ´õ Ã¼Å©
+void Check_encoder() { //ì¸ì½”ë” ì²´í¬
 	int asdfawsdf = digitalRead(_EN_CLPIN_);
-	if (!asdfawsdf) { //¹öÆ°´©¸§
-		if (lcd.menu == 0) { //È¨¿¡¼­¸¸ ÀÛµ¿ÇÏ´Â ±â´É
+	if (!asdfawsdf) { //ë²„íŠ¼ëˆ„ë¦„
+		if (lcd.menu == 0) { //í™ˆì—ì„œë§Œ ì‘ë™í•˜ëŠ” ê¸°ëŠ¥
 			lcd.clear(0);
 			lcd.menu = 1;
 			mode_setting = 1;
 		}
-		else if (lcd.menu == 1) { //¼¼ÆÃ¿¡¼­¸¸ ÀÛµ¿ÇÏ´Â ±â´É
+		else if (lcd.menu == 1) { //ì„¸íŒ…ì—ì„œë§Œ ì‘ë™í•˜ëŠ” ê¸°ëŠ¥
 			if (scroll == 0) {
-				lcd.menu = 0; //½ºÅ©·Ñµµ ³ª°¡´Â À§Ä¡¿¡ ÀÖ¾î¾ßÇÔ
+				lcd.menu = 0; //ìŠ¤í¬ë¡¤ë„ ë‚˜ê°€ëŠ” ìœ„ì¹˜ì— ìˆì–´ì•¼í•¨
 				lcd.clear(0);
 			}
-			else if (scroll == 1) { //È÷ÆÃ/Äğ¸µ ¸ğµå¼³Á¤
+			else if (scroll == 1) { //íˆíŒ…/ì¿¨ë§ ëª¨ë“œì„¤ì •
 				int  Encoder_v_n = 0, Encoder_v_o = -999, Encoder_v = 0;
 				while(!digitalRead(_EN_CLPIN_)) {
 					Encoder_v_n = Enc.read();
@@ -304,7 +289,7 @@ void Check_encoder() { //ÀÎÄÚ´õ Ã¼Å©
 				}
 				EEPROM.write(address_EEPROM_mode, mode);
 			}
-			else if (scroll == 2) { //MAX¿Âµµ ¼³Á¤
+			else if (scroll == 2) { //MAXì˜¨ë„ ì„¤ì •
 				int  Encoder_v_n = 0, Encoder_v_o = -999, Encoder_v = 0;
 				while (!digitalRead(_EN_CLPIN_)) {
 					Encoder_v_n = Enc.read();
@@ -325,13 +310,13 @@ void Check_encoder() { //ÀÎÄÚ´õ Ã¼Å©
 					}
 					LCD_print();
 				}
-				//¿ÂµµÀúÀå
+				//ì˜¨ë„ì €ì¥
 				int min, max;
 				min = (Temp_top.set < Temp_bot.set) ? Temp_top.set : Temp_bot.set;
 				max = (Temp_top.set > Temp_bot.set) ? Temp_top.set : Temp_bot.set;
 				EEPROM.write(address_EEPROM_hightemp, max);
 			}
-			else if (scroll == 3) { //MIN¿Âµµ ¼³Á¤
+			else if (scroll == 3) { //MINì˜¨ë„ ì„¤ì •
 				int  Encoder_v_n = 0, Encoder_v_o = -999, Encoder_v = 0;
 				while (!digitalRead(_EN_CLPIN_)) {
 					Encoder_v_n = Enc.read();
@@ -352,54 +337,54 @@ void Check_encoder() { //ÀÎÄÚ´õ Ã¼Å©
 					}
 					LCD_print();
 				}
-				//¿ÂµµÀúÀå
+				//ì˜¨ë„ì €ì¥
 				int min, max;
 				min = (Temp_top.set < Temp_bot.set) ? Temp_top.set : Temp_bot.set;
 				max = (Temp_top.set > Temp_bot.set) ? Temp_top.set : Temp_bot.set;
 				EEPROM.write(address_EEPROM_lowtemp, -min);
 
 			}
-			else if (scroll == 4) { //ÃÊ±âÈ­ ¸ğµå - > on/off¸ğµå·Î ¹Ù²Ù±â
+			else if (scroll == 4) { //ì´ˆê¸°í™” ëª¨ë“œ - > on/offëª¨ë“œë¡œ ë°”ê¾¸ê¸°
 				scroll = 0;
-				if (ONOFF == 1) { //²¨¾ßÇÒ¶§
+				if (ONOFF == 1) { //êº¼ì•¼í• ë•Œ
 					ONOFF = 0;
 					END_COLLING = 1;
 					//digitalWrite(_FAN_PWMPIN_, LOW);
 				}
-				else { //ÄÑ¾ßÇÒ ¶§
+				else { //ì¼œì•¼í•  ë•Œ
 					ONOFF = 1;
 					//digitalWrite(_FAN_PWMPIN_, HIGH);
 					Check_temp();
 				}
 				lcd.clear(0);
-				lcd.menu = 0; //¸ŞÀÎ¸Ş´º·Î µ¹¾Æ°¨
+				lcd.menu = 0; //ë©”ì¸ë©”ë‰´ë¡œ ëŒì•„ê°
 			}
 		}
 		plash();
 		LCD_print();
-		while (!digitalRead(_EN_CLPIN_)) {} //µÎ¹ø´©¸£´Â°Å ¹æÁö
+		while (!digitalRead(_EN_CLPIN_)) {}
 	}
 	encoder.New = Enc.read();
 	if (encoder.New != encoder.Old) {
 		if (encoder.New < encoder.Old) encoder.count_EN++;
 		if (encoder.New > encoder.Old) encoder.count_EN--;
-		if (encoder.count_EN == 4) { //¹İ½Ã°è¹æÇâ (-)
+		if (encoder.count_EN == 4) { //ë°˜ì‹œê³„ë°©í–¥ (-)
 			encoder.count_EN = 0;
 			plash();
 			if (lcd.menu == 1) {
-				if (mode_setting == 1) { //¼±ÅÃ¸ğµå
-					if (scroll > 0) scroll--; //0 ¹ÛÀ¸·Î ³ª°¡Áö ¾Ê¾Æ¾ßÇÔ
+				if (mode_setting == 1) { //ì„ íƒëª¨ë“œ
+					if (scroll > 0) scroll--; //0 ë°–ìœ¼ë¡œ ë‚˜ê°€ì§€ ì•Šì•„ì•¼í•¨
 				}
 				//mode = 2;
 				LCD_print();
 			}
 		}
-		else if (encoder.count_EN == -4) { //½Ã°è¹æÇâ (+)
+		else if (encoder.count_EN == -4) { //ì‹œê³„ë°©í–¥ (+)
 			encoder.count_EN = 0;
 			plash();
 			if (lcd.menu == 1) {
-				if (mode_setting == 1) { //¼±ÅÃ¸ğµå
-					if (scroll < 4) scroll++; //4 ¹ÛÀ¸·Î ³ª°¡Áö ¾Ê¾Æ¾ßÇÔ
+				if (mode_setting == 1) { //ì„ íƒëª¨ë“œ
+					if (scroll < 4) scroll++; //4 ë°–ìœ¼ë¡œ ë‚˜ê°€ì§€ ì•Šì•„ì•¼í•¨
 				}
 				//mode = 1;
 				LCD_print();
@@ -408,20 +393,18 @@ void Check_encoder() { //ÀÎÄÚ´õ Ã¼Å©
 		encoder.Old = encoder.New;
 	}
 }
-/*¿Âµµ Ã¼Å·*/
-//¼¾¼­¿¡·¯µµ °í·ÁÇÒ°Í.
-//defineÀ¸·Î °­Á¦ »óÇÑ¼±µµ ¸¸µé °Í.
+
 void Check_temp() {
 	Temp_top.now = (int)Sensor_bot.getTemp();
 	Temp_bot.now = (int)Sensor_top.getTemp();
-	if (END_COLLING) { //²ø ¶§ 45µµ±îÁö ¿Âµµ ³»¸²
+	if (END_COLLING) { //ëŒ ë•Œ 45ë„ê¹Œì§€ ì˜¨ë„ ë‚´ë¦¼
 		digitalWrite(_FAN_PWMPIN_, HIGH);
 		if (Temp_bot.now <= 45) {
 			digitalWrite(_FAN_PWMPIN_, LOW);
 			END_COLLING = 0;
 		}
 	}
-	else if (mode == 1 && ONOFF) { //È÷ÆÃ ¸ğµåÀÏ ¶§
+	else if (mode == 1 && ONOFF) { //íˆíŒ… ëª¨ë“œì¼ ë•Œ
 		if (Temp_top.now < Temp_top.set && Temp_bot.now > Temp_bot.set) {
 			LCD.setCursor(15, 0);
 			LCD.print("H");
@@ -433,13 +416,13 @@ void Check_temp() {
 			LCD.print(" ");
 			digitalWrite(_MO_PWMPIN_, LOW);
 		}
-		if (Temp_bot.now < 50 && !Must_coll) { //¾Æ·¡ ¿Âµµ°¡ 40µµ ÀÌÇÏÀÌ¸é
+		if (Temp_bot.now < 50 && !Must_coll) { //ì•„ë˜ ì˜¨ë„ê°€ 40ë„ ì´í•˜ì´ë©´
 			digitalWrite(_FAN_PWMPIN_, LOW);
 		}
 		if (Temp_bot.now >= 50 || Must_coll) {
 			digitalWrite(_FAN_PWMPIN_, HIGH);
 
-			//ÇÑ ¹ø ÄÑÁö¸é 45µµ±îÁö ¿Âµµ ³»¸²(³Ê¹« ¶³¾îÁ®µµ ¾ÈÁÁÀ½)
+			//í•œ ë²ˆ ì¼œì§€ë©´ 45ë„ê¹Œì§€ ì˜¨ë„ ë‚´ë¦¼(ë„ˆë¬´ ë–¨ì–´ì ¸ë„ ì•ˆì¢‹ìŒ)
 			if (Temp_bot.now >= 50 && Must_coll == 0) {
 				Must_coll = 1;
 			}
@@ -490,7 +473,7 @@ void setup() {
 	pinMode(A1, INPUT);
 	plash();
 	
-	/*±âº» ¿Âµµ ¼¼ÆÃ*/
+	/*ê¸°ë³¸ ì˜¨ë„ ì„¸íŒ…*/
 	mode = EEPROM.read(address_EEPROM_mode);
 	if (mode == 1) {
 		Temp_top.set = EEPROM.read(address_EEPROM_hightemp);
@@ -500,28 +483,19 @@ void setup() {
 		Temp_bot.set = EEPROM.read(address_EEPROM_hightemp);
 		Temp_top.set = -1 * EEPROM.read(address_EEPROM_lowtemp);
 	}
-	/*LCD Ä¿½ºÅÒ ¹®ÀÚ ¼¼ÆÃ*/
-	LCD.createChar(0, newChar1); //¿Âµµ±âÈ£
-	LCD.createChar(1, newChar2); //È÷ÆÃ±âÈ£
-	LCD.createChar(2, newChar3); //Äğ¸µ±âÈ£
+	/*LCD ì»¤ìŠ¤í…€ ë¬¸ì ì„¸íŒ…*/
+	LCD.createChar(0, newChar1); //ì˜¨ë„ê¸°í˜¸
+	LCD.createChar(1, newChar2); //íˆíŒ…ê¸°í˜¸
+	LCD.createChar(2, newChar3); //ì¿¨ë§ê¸°í˜¸
 	LCD.createChar(3, newChar4); //N/C
 	LCD.createChar(4, newChar5); //N/C
-	LCD.createChar(5, newChar6); //ºí·°
-	LCD.createChar(6, newChar7); //³íºí·°
+	LCD.createChar(5, newChar6); //ë¸”ëŸ­
+	LCD.createChar(6, newChar7); //ë…¼ë¸”ëŸ­
 	lcd.clear(0);
 	lcd.home();
 	plash();
 }
 int DEBUG_print() {
-	/*
-	============================
-	Mode: Colling
-	Top: 123.12
-	Bot: 123.12
-	Max: 123
-	Min: -123
-	============================
-	*/
 	Serial.println("============================");
 	Serial.print("Mode: ");
 	if (mode == 1) Serial.println("Heating");
@@ -539,10 +513,9 @@ int DEBUG_print() {
 
 void loop() {
 	Check_encoder();
-	//Serial.println(digitalRead(4));
 	if (Time <= millis()) {
-		LCD_print(); //1ÃÊ¸¶´Ù ¸®ÇÁ·¹½¬
-		Check_temp(); //1ÃÊ¹Ù´Ù ¿ÂµµÃ¼Å©
+		LCD_print();
+		Check_temp(); 
 		Time = millis() + 200;
 	}
 	if (DEBUG&&Time2 <= millis()) {
